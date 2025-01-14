@@ -30,8 +30,11 @@ def find_key(resource_dir: str):
 def decrypt_file_name(encrypted_file_name: str):
     """Function for "Decrypting" a filename
     `.rpgmo`: `.ogg`
+    `.ogg_`: `.ogg`
     `.rpgmvm`: `.m4a`
-    `.rpgmvp`: `.png`"""
+    `.m4a_`: `.m4a`
+    `.rpgmvp`: `.png`
+    `.png_`: `.png`"""
     if encrypted_file_name.endswith(".rpgmvo"):
         return encrypted_file_name[:-7] + ".ogg"
     if encrypted_file_name.endswith(".ogg_"):
