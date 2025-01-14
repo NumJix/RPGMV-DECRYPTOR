@@ -3,6 +3,14 @@ from tkinter import filedialog, messagebox
 import os
 import mvDecryptor
 
+
+def decrypt_game(resource_dir):
+    # Decrypt the game
+    mvDecryptor.decrypt_entire_game(resource_dir)
+    # Show a success message
+    messagebox.showinfo(title="INFORMATION", message="DONE!\nGame has been decrypted.\nAn editable file has been created.")
+
+
 # Create the main window (hidden)
 window = tk.Tk()
 window.withdraw()
@@ -19,12 +27,14 @@ if not game_dir:
     exit(0)
 
 # Check if System.json exists in the expected path
-system_json_path = os.path.join(game_dir, "www", "data", "System.json")
-if os.path.exists(system_json_path):
-    # Decrypt the game
-    mvDecryptor.decrypt_entire_game(game_dir)
-    # Show a success message
-    messagebox.showinfo(title="INFORMATION", message="DONE!\nGame has been decrypted.\nAn editable file has been created.")
+if os.path.exists(os.path.join(game_dir, "www", "data", "System.json")):
+    mvDecryptor.SYSTEM_JSON_PATH = os.path.join(game_dir, "www", "data", "System.json")
+    mvDecryptor.BASE_DIR = os.path.join(game_dir, "www")
+    decrypt_game(mvDecryptor.BASE_DIR)
+elif os.path.exists(os.path.join(game_dir, "data", "System.json")):
+    mvDecryptor.SYSTEM_JSON_PATH = os.path.join(game_dir, "data", "System.json")
+    mvDecryptor.BASE_DIR = game_dir
+    decrypt_game(mvDecryptor.BASE_DIR)
 else:
     # Display an error message
     messagebox.showerror(title="ERROR", message="Could not find System.json.\nDid you select the correct directory?")
