@@ -25,3 +25,6 @@ The .rpgproject file is just a plaintext file that contains the string "RPGMV %s
 Downloads:   
 Windows (x86): https://bitbucket.org/SilicaAndPina/rpgmv-decryptor/downloads/RPGMV-DECRYPTOR-WIN32.zip  
 Linux: https://bitbucket.org/SilicaAndPina/rpgmv-decryptor/downloads/RPGMV-DECRYPTOR-LINUX.tar.gz  
+
+This is a fork from
+https://github.com/kawanakaiku/RPGMV-DECRYPTOR
