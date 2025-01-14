@@ -4,62 +4,88 @@
 #
 #
 
-import binascii # Imports the "binascii" library
-import os # Imports the "OS" library
+import binascii
+import os
 
 
-def xor(data, key): # XOR Encryption / Decryption Algorithm
-    l = len(key) # Sets l to length of key.
-    return bytearray(((data[i] ^ key[i % l]) for i in range(0,len(data))))  # Do complex MATH stuff and convert the result to a bytearray.
+def xor(data, key):
+    """XOR Encryption / Decryption Algorithm"""
+    ln = len(key)
+    # Do complex MATH stuff and return the converted the result to a bytearray.
+    return bytearray(((data[i] ^ key[i % ln]) for i in range(0, len(data))))
 
-def findKey(gameDir): # Function for finding decryption key
-    key = open(gameDir+"/www/data/System.json","rb").read() # Read System.json
-    key = key[key.index(b'"encryptionKey":"')+len(b'"encryptionKey":"'):] # Find "encryptionKey":" in System.json
-    key = key[:key.index(b'"}')] # Finish string at "}
-    return bytearray(binascii.unhexlify(key)) # Decode Hexadecimal and convert to ByteArray.
 
-def decryptFilename(encryptedFilename): # Function for "Decrypting" a filename
-    if encryptedFilename.endswith(".rpgmvo"): # If file extension is .rpgmvo
-        return encryptedFilename[:-7]+".ogg" # Make .ogg file.
-    if encryptedFilename.endswith(".rpgmvm"): # If file extension is .rpgmvm
-        return encryptedFilename[:-7] + ".m4a" # Make .m4a file.
-    if encryptedFilename.endswith(".rpgmvp"): # If file extension is .rpgmvp
-        return encryptedFilename[:-7] + ".png" # Make .png file.
-    if encryptedFilename[-4:-1] in ["ogg", "m4a", "png"]:
-        return encryptedFilename[:-1]
+def find_key(game_dir: str):
+    """Function for finding decryption key in game folder from System.json"""
+    key = open(os.path.join(game_dir, "www", "data", "System.json"), "rb").read()
+    key = key[key.index(b'"encryptionKey":"')+len(b'"encryptionKey":"'):]
+    key = key[:key.index(b'"}')]
+    # return Decoded Hexadecimal and converted to ByteArray key.
+    return bytearray(binascii.unhexlify(key))
 
-def isEncryptedFile(path): # Function for determining if the specified path is an Encrypted RMMV File..
-    if path.endswith(".rpgmvo"): # If file extension is .rpgmvo
-        return True # Yes it is an encrypted RMMV File.
-    if path.endswith(".rpgmvm"): # If file extension is .rpgmvm
-        return True # Yes it is an encrypted RMMV File.
-    if path.endswith(".rpgmvp"): # If file extension is .rpgmvp
-        return True # Yes it is an encrypted RMMV File.
+
+def decrypt_file_name(encrypted_file_name: str):
+    """Function for "Decrypting" a filename
+    `.rpgmo`: `.ogg`
+    `.rpgmvm`: `.m4a`
+    `.rpgmvp`: `.png`"""
+    if encrypted_file_name.endswith(".rpgmvo"):
+        return encrypted_file_name[:-7]+".ogg"
+    if encrypted_file_name.endswith(".rpgmvm"):
+        return encrypted_file_name[:-7] + ".m4a"
+    if encrypted_file_name.endswith(".rpgmvp"):
+        return encrypted_file_name[:-7] + ".png"
+    if encrypted_file_name[-4:-1] in ["ogg", "m4a", "png"]:
+        return encrypted_file_name[:-1]
+
+
+def is_encrypted_file(path):
+    """Function for determining if the specified path is an Encrypted RMMV File
+    Types of RMMV file - [rpgmvo, rpgmvm, rpgmvp]"""
+    if path.endswith(".rpgmvo"):
+        return True
+    if path.endswith(".rpgmvm"):
+        return True
+    if path.endswith(".rpgmvp"):
+        return True
     if path[-4:-1] in ["ogg", "m4a", "png"]:
         return True
 
-def decryptFile(encryptedFilename,key): # Function for decrypting a file.
-    dfile = decryptFilename(encryptedFilename)
-    ctime = os.stat(encryptedFilename).st_mtime
-    file = open(encryptedFilename,"rb").read() # Read encrypted file.
-    file = file[16:] # Remove file header.
-    cyphertext = bytearray(file[:16]) # Read encrypted file header.
-    plaintext = bytearray(xor(cyphertext,key)) # Decrypt file header
-    file = file[16:] # Remove decrypted file header
-    open(dfile,"wb").write(plaintext + file) # Write decrypted file header + rest of file to disk as Decrypted Filename..
+
+def decrypt_file_and_save(encrypted_file_name: str, key: bytearray):
+    """Function for decrypting a file and writing it"""
+    dfile = decrypt_file_name(encrypted_file_name)
+    ctime = os.stat(encrypted_file_name).st_mtime
+    file = open(encrypted_file_name, "rb").read()  # Read encrypted file.
+    file = file[16:]  # Remove file header.
+    cyphertext = bytearray(file[:16])  # Read encrypted file header
+    plaintext = bytearray(xor(cyphertext, key))  # Decrypt file header
+    file = file[16:]  # Remove decrypted file header
+    with open(dfile, "wb") as wt:
+        # Write decrypted file header +
+        # rest of file to disk as Decrypted Filename
+        wt.write(plaintext + file)
     os.utime(dfile, (ctime, ctime))
 
 
-def decryptEntireGame(gameDir): # Function for decrypting an entire game folder.
-    key = findKey(gameDir) # Find Decryption Key
-    for path, dirs, files in os.walk(gameDir+"/www"): # List all files inside the Game's project folder.
-        for f in files: # For all files in Game's WWW folder.
-            if isEncryptedFile(os.path.join(path,f)): # If its an encrypted RM MV File...
-                decryptFile(os.path.join(path,f),key) # Decrypt the file.
-                os.remove(os.path.join(path,f)) # Delete encrypted file
-    SystemJson = open(gameDir+"/www/data/System.json","rb").read() # Reads System.json
-    SystemJson = SystemJson.replace(b'"hasEncryptedImages":true',b'"hasEncryptedImages":false') # Sets hasEncryptedImages to FALSE
-    SystemJson = SystemJson.replace(b'"hasEncryptedAudio":true',b'"hasEncryptedAudio":false') # Sets hasEncryptedAudio to FALSE
-    open(gameDir+"/www/data/System.json","wb").write(SystemJson) # Writes new System.json to disk
-    open(gameDir+"/www/Game.rpgproject","wb").write(b"RPGMV 1.0.0") # Creates Editable RPG Maker MV Project File
-
+def decrypt_entire_game(game_dir):
+    """Function for decrypting an entire game folder"""
+    # Find Decryption Key
+    key = find_key(game_dir)
+    # Loop through all files inside the Game's project folder.
+    for path, dirs, files in os.walk(os.path.join(game_dir, "www")):
+        for f in files:  # For all files in Game's WWW folder.
+            if is_encrypted_file(os.path.join(path, f)):
+                decrypt_file_and_save(os.path.join(path, f), key)
+                os.remove(os.path.join(path, f))  # Delete encrypted file
+    SystemJson = open(os.path.join(game_dir, "www", "data", "System.json"), "rb").read()
+    SystemJson = SystemJson.replace(
+        b'"hasEncryptedImages":true',
+        b'"hasEncryptedImages":false')  # Sets hasEncryptedImages to FALSE
+    SystemJson = SystemJson.replace(
+        b'"hasEncryptedAudio":true',
+        b'"hasEncryptedAudio":false')  # Sets hasEncryptedAudio to FALSE
+    with open(os.path.join(game_dir, "www", "data", "System.json"), "wb") as wt:
+        wt.write(SystemJson)  # Writes new System.json to disk
+    with open(os.path.join(game_dir, "www", "Game.rpgproject"), "wb") as wt:
+        wt.write(b"RPGMV 1.0.0")  # Creates Editable RPG Maker MV Project File
