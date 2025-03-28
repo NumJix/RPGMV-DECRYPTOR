@@ -7,7 +7,7 @@ Decrypts RPG Maker MV Game Files (.rpgmvo, .rpgmvp and .rpgmvm files)
 and creates an .rpgproject editable file.        
 Reverse Engineering / Static Analysis & Modding purposes~ plz dont steal assets. .           
 
-Written in Python 2.7.
+Written in Python 3.12.
 
 # How RPGMV Crypto Works
 RPG Maker MV's encryption is really weak, for startas it doesnt even encrypt the entire file, it just encrypts the header using XOR. and then writes its own RPG Maker MV header to the file with the old (now encrypted) header under it.
