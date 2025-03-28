@@ -90,7 +90,7 @@ def decrypt_entire_game(resource_dir):
             if is_encrypted_file(os.path.join(path, f)):
                 decrypt_file_and_save(os.path.join(path, f), key)
                 os.remove(os.path.join(path, f))  # Delete encrypted file
-    SystemJson = open(os.path.join(resource_dir, "data", "System.json"), "rb").read()
+    SystemJson = open(os.path.join(resource_dir, "data", "System.json"), "rb").read()  # noqa: E501
     SystemJson = SystemJson.replace(
         b'"hasEncryptedImages":true',
         b'"hasEncryptedImages":false')  # Sets hasEncryptedImages to FALSE
