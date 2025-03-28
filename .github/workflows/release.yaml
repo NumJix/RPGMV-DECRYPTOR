@@ -17,6 +17,10 @@ jobs:
         with:
           python-version: '3.12.5'
 
+      - name: Install pyinstaller
+        run: |
+          pip install pyinstaller
+
       - name: Build the application
         run: |
           echo "Building application with tag: ${{ github.event.release.tag }}"
