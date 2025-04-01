@@ -24,7 +24,7 @@ jobs:
       - name: Build the application
         run: |
           echo "Building application with tag: ${{ github.event.release.tag }}"
-          pyinstaller --onefile --windowed --name "RPGMV_Extractor.exe" --icon="icon\simple_app_icon.ico" gui.py
+          pyinstaller --onefile --windowed --name "MV_decryptor.exe" --icon="icon\simple_app_icon.ico" gui.py
 
       - name: Create GitHub Release
         id: create_release
