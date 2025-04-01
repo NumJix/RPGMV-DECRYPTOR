@@ -31,6 +31,6 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.event.release.tag }}
-          files: ./dist/RPGMV_Extractor.exe 
+          files: ./dist/MV_decryptor.exe 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
